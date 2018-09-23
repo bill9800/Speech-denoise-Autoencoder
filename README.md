@@ -12,5 +12,5 @@ Calculate mel frequency by the freq-to-mel matrix, and these are the input for a
 
 ## Structure
 
-![network](https://raw.githubusercontent.com/username/projectname/branch/path/to/img.png)
+![network](https://raw.githubusercontent.com/bill9800/Speech-denoise-Autoencoder/networkstructure.png)
 
