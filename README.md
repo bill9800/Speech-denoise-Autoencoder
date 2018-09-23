@@ -12,5 +12,4 @@ Calculate mel frequency by the freq-to-mel matrix, and these are the input for a
 
 ## Structure
 
-![network](Speech-denoise-Autoencoder/pic/networkstructure.png)
-
+<img src="https://github.com/bill9800/Speech-denoise-Autoencoder/pic/networkstructure.png" width="600">
