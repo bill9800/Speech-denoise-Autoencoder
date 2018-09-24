@@ -10,7 +10,7 @@ DOWNLOAD = 0 # download and preprocess the data
 WAVE_PLOT = 0 # plot original wave, noise wave, mixed wave
 INVERSE_CHECK = 0 # check the inverse function of mel
 DUMP = 0 # dump wave data to real wav
-TRAIN_DENOISE = 1# train the denoising model with mel freq input and output
+TRAIN_DENOISE = 0# train the denoising model with mel freq input and output
 DENOISE = 1 # use the pretrained denoise autoencoder
 
 # command line functions #
@@ -83,7 +83,7 @@ expand_rate = 1/noise_max
 noise_data = noise_data*expand_rate
 
 assert clean_sr == noise_sr
-mix_data = clean_data*0.7 + noise_data*0.3
+mix_data = clean_data*0.8 + noise_data*0.2
 mix_sr = clean_sr
 
 ####################################################################
@@ -261,13 +261,13 @@ if TRAIN_DENOISE:
 
     HiddenLayer1_1 = Dense(n_hidden1,name="H1",activation='relu',kernel_initializer=he_normal(seed=27))(InputLayer2)
     HiddenLayer1_2 = BatchNormalization(axis=1,momentum=0.6)(HiddenLayer1_1)
-    HiddenLayer1_3 = Dropout(0.2)(HiddenLayer1_2)
+    HiddenLayer1_3 = Dropout(0.1)(HiddenLayer1_2)
 
     HiddenLayer2_1 = Dense(n_hidden2,name="H2",activation='relu',kernel_initializer=he_normal(seed=42))(HiddenLayer1_3)
 
     HiddenLayer3_1 = Dense(n_hidden1,name="H3",activation='relu',kernel_initializer=he_normal(seed=27))(HiddenLayer2_1)
     HiddenLayer3_2 = BatchNormalization(axis=1,momentum=0.6)(HiddenLayer3_1)
-    HiddenLayer3_3 = Dropout(0.2)(HiddenLayer3_2)
+    HiddenLayer3_3 = Dropout(0.1)(HiddenLayer3_2)
 
     OutputLayer= Dense(n_output_dim,name="OutputLayer",kernel_initializer=he_normal(seed=62))(HiddenLayer3_3)
 
@@ -280,7 +280,7 @@ if TRAIN_DENOISE:
 
     tensorboard = TensorBoard(log_dir="./logs", histogram_freq=0, write_graph=True ,write_images=True)
     # fit the model
-    hist = model.fit(X_train, y_train, batch_size= 512, epochs=200, verbose=1, validation_data=([X_val], [y_val]),
+    hist = model.fit(X_train, y_train, batch_size= 1024, epochs=200, verbose=1, validation_data=([X_val], [y_val]),
                      callbacks=[tensorboard])
 
 
@@ -316,9 +316,12 @@ if DENOISE:
     y_pred = denoise_model.predict(D_X)
     ratio = np.abs(y_pred) / np.abs(D_X)
     print(ratio[:100])
-    D_out = ratio * D_X * max
+    M_ratio = ratio[:,::2]+1j*ratio[:,1::2]
+    F_ratio = np.dot(M_ratio,mel2freq_matrix)
+    D_out = D_X * max
     M_out = D_out[:,::2]+1j*D_out[:,1::2]
     F_out = np.dot(M_out,mel2freq_matrix)
+    out = F_ratio * F_out
 
     #ratio[np.isnan(ratio)] = 0.0
     print("shape of F_out:",F_out.shape)
