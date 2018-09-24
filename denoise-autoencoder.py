@@ -10,7 +10,7 @@ DOWNLOAD = 0 # download and preprocess the data
 WAVE_PLOT = 0 # plot original wave, noise wave, mixed wave
 INVERSE_CHECK = 0 # check the inverse function of mel
 DUMP = 0 # dump wave data to real wav
-TRAIN_DENOISE = 0# train the denoising model with mel freq input and output
+TRAIN_DENOISE = 1# train the denoising model with mel freq input and output
 DENOISE = 1 # use the pretrained denoise autoencoder
 
 # command line functions #
@@ -228,10 +228,13 @@ D_y = D_y / max
 
 # separate data to train test sets
 D_X_train = D_X[:int(D_X.shape[0]*0.9),:]
-D_y_train = D_y[:int(D_y.shape[0]*0.9),:]
+D_y_train = D_y[:int(D_y.shape[0]*0.9),:] / D_X[:int(D_X.shape[0]*0.9),:]
+G_max = np.max(D_y_train)
+D_y_train = D_y_train/G_max
 
 X_test = D_X[int(D_X.shape[0]*0.9):,:]
-y_test = D_y[int(D_y.shape[0]*0.9):,:]
+y_test = D_y[int(D_y.shape[0]*0.9):,:] / D_X[int(D_X.shape[0]*0.9):,:]
+y_test = y_test/G_max
 
 X_train, X_val, y_train, y_val = train_test_split(D_X_train, D_y_train, test_size=0.15, random_state=87)
 
@@ -251,8 +254,8 @@ if TRAIN_DENOISE:
     n_input_dim = X_train.shape[1]
     n_output_dim = y_train.shape[1]
 
-    n_hidden1 = 500
-    n_hidden2 = 1000
+    n_hidden1 = 1000
+    n_hidden2 = 512
 
     # H1,H3 shares the same weights
     InputLayer1 = Input(shape=(n_input_dim,),name="InputLayer")
@@ -280,7 +283,7 @@ if TRAIN_DENOISE:
 
     tensorboard = TensorBoard(log_dir="./logs", histogram_freq=0, write_graph=True ,write_images=True)
     # fit the model
-    hist = model.fit(X_train, y_train, batch_size= 1024, epochs=200, verbose=1, validation_data=([X_val], [y_val]),
+    hist = model.fit(X_train, y_train, batch_size= 1024, epochs=300, verbose=1, validation_data=([X_val], [y_val]),
                      callbacks=[tensorboard])
 
 
@@ -313,15 +316,11 @@ if DENOISE:
     denoise_model.load_weights("model/model3.h5")
     print("Loaded model from disk")
 
-    y_pred = denoise_model.predict(D_X)
-    ratio = np.abs(y_pred) / np.abs(D_X)
-    print(ratio[:100])
-    M_ratio = ratio[:,::2]+1j*ratio[:,1::2]
-    F_ratio = np.dot(M_ratio,mel2freq_matrix)
-    D_out = D_X * max
-    M_out = D_out[:,::2]+1j*D_out[:,1::2]
-    F_out = np.dot(M_out,mel2freq_matrix)
-    out = F_ratio * F_out
+    gain = denoise_model.predict(D_X) * G_max
+    M_gain = gain[:,::2]+1j*gain[:,1::2]
+    F_gain = np.dot(M_gain,mel2freq_matrix)
+
+    F_out = F_gain * fft_mix_data
 
     #ratio[np.isnan(ratio)] = 0.0
     print("shape of F_out:",F_out.shape)
