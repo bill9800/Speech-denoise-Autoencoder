@@ -10,7 +10,7 @@ DOWNLOAD = 0 # download and preprocess the data
 WAVE_PLOT = 0 # plot original wave, noise wave, mixed wave
 INVERSE_CHECK = 0 # check the inverse function of mel
 DUMP = 0 # dump wave data to real wav
-TRAIN_DENOISE = 1# train the denoising model with mel freq input and output
+TRAIN_DENOISE = 0# train the denoising model with mel freq input and output
 DENOISE = 1 # use the pretrained denoise autoencoder
 
 # command line functions #
@@ -133,7 +133,7 @@ fft_size = 1024
 step_size = fft_size // 3# distance to slide along the window
 
 # fequency to mel parameter #
-n_mels = 80 # number of mel frequency
+n_mels = 40 # number of mel frequency
 start_freq = 0.0
 end_freq = 8000.0
 
@@ -275,7 +275,7 @@ if TRAIN_DENOISE:
     OutputLayer= Dense(n_output_dim,name="OutputLayer",kernel_initializer=he_normal(seed=62))(HiddenLayer3_3)
 
     model = Model(inputs=[InputLayer1],outputs=[OutputLayer])
-    opt = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-7, decay=0.001, amsgrad=False)
+    opt = optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-7, decay=0.0001, amsgrad=False)
     model.compile(loss='mse',optimizer=opt)
 
     plot_model(model,to_file='model.png',show_shapes=True,show_layer_names=True)
@@ -283,7 +283,7 @@ if TRAIN_DENOISE:
 
     tensorboard = TensorBoard(log_dir="./logs", histogram_freq=0, write_graph=True ,write_images=True)
     # fit the model
-    hist = model.fit(X_train, y_train, batch_size= 1024, epochs=300, verbose=1, validation_data=([X_val], [y_val]),
+    hist = model.fit(X_train, y_train, batch_size= 1024, epochs=58, verbose=1, validation_data=([X_val], [y_val]),
                      callbacks=[tensorboard])
 
 
