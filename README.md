@@ -8,8 +8,6 @@ Input : audio data on mel-frequency domain
 
 Output: complex ratio mask (cRM)[1]
 
-<img src="https://github.com/bill9800/Speech-denoise-Autoencoder/raw/master/pic/networkstructure.png" width="100">
-
 This model built in linear shape (2049-500-180) without weight lock[2].
 
 ## Source
