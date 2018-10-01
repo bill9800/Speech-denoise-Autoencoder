@@ -1,29 +1,26 @@
-# Speech-denoise-Autoencoder
+# Speech-denoising-Autoencoder
 
-## Data
-
-Use youtube-dl toolkit to download four TED-talk audio and one cafe noise music.
-
-Preprocess and mix the audio with Sox and ffmpeg to get 9 minutes clean and noised wav file.
-
-Transfer wave data from time scale to frequency scale after rfft.
-
-Calculate mel frequency by the freq-to-mel matrix, and these are the input for autoencoder NN model.
+Speech denoising systems usually enhance only the magnitude spectrum while leaving the phase spectrum. This system try to improve the performance by following the denoising autoencoder structure and applies complex ratio mask to keep the phase information. 
 
 ## Structure
 
-This model train mel freqency of the noised data as input and the gain as output.
+Input : audio data on mel-frequency domain
+
+Output: complex ratio mask (cRM)[1]
 
 <img src="https://github.com/bill9800/Speech-denoise-Autoencoder/raw/master/pic/networkstructure.png" width="200">
 
-## Prediction
+This model built in linear shape (2049-500-180) without weight lock[2].
 
-Input the noised test data to this model, the loss is around 2*1e-5.
+## Source
+[youtube-dl](http://rg3.github.io/youtube-dl/) : a command-line program to download videos from YouTube.com and a few more sites
+[SoX](http://sox.sourceforge.net/) : a cross-platform command line utility to convert various formats of audio files in to other formats
+[FFmpeg](https://www.ffmpeg.org/) : a complete, cross-platform solution to record, convert and stream audio and video
+[librosa](https://librosa.github.io/librosa/) : python package for music and audio analysis
 
-Reconstruct the data and output the wav file from the gain method.
-
-
-
+## Reference
+[1] [Complex Ratio Masking for Monaural Speech Separation, D.Williamson, IEEE/ACM TRANSACTIONS ON AUDIO, SPEECH, AND LANGUAGE PROCESSING, VOL. 24, NO. 3, MARCH 2016](https://ieeexplore.ieee.org/document/7364200/)
+[2] [Speech Synthesis with Deep Denoising Autoencoder, Zhenzhou Wu](http://gram.cs.mcgill.ca/theses/wu-15-speech.pdf)
 
 
 
