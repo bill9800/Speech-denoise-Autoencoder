@@ -1,6 +1,6 @@
 # Speech-denoising-Autoencoder
 
-Speech denoising systems usually enhance only the magnitude spectrum while leaving the phase spectrum. This system try to improve the performance by following the denoising autoencoder structure and applies complex ratio mask to keep the phase information. 
+Speech denoising systems usually enhance only the magnitude spectrum while leaving the phase spectrum. This system try to improve the performance of denoising system based on denoising autoencoder neural network. The estimation of clean audio is computed by complex ideal ratio mask to enhance the phase information. 
 
 ## Structure
 
