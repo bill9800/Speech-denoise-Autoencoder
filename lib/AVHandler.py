@@ -51,7 +51,7 @@ def cut(loc,name,start_time,end_time):
 def conc(loc,name,trim_clean=False):
     # concatenate the data in the loc (name_*.wav)
     command = 'cd %s;' % loc
-    command += 'sox --combine concatenate %s_*.wav -o %s.wav;' % (name,name)
+    command += 'sox --combine concatenate %s_*.wav %s.wav;' % (name,name)
     if trim_clean:
     	command += 'rm %s*.wav;' % name
     os.system(command)
